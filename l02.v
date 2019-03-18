@@ -81,7 +81,8 @@ Fixpoint find {X:Type} (f: X->bool) (l:list X) : option X :=
 
 Require Import Coq.Arith.PeanoNat.
 
-Definition partition {X: Type} (p: X -> bool) (l:list X) : (list X) * (list X) := ((filter p l), (filter (fun x => negb (p x)) l)).
+Definition partition {X: Type} (p: X -> bool) (l:list X) : (list X) * (list X) :=
+  ((filter p l), (filter (fun x => negb (p x)) l)).
 
 Definition list_prod {X Y : Type} (l1: list X) (l2: list Y) : list (X*Y) :=
   concat (map (fun x:X => map (fun y:Y => (x,y)) l2) l1).
