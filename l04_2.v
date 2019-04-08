@@ -42,7 +42,7 @@ Fixpoint commuter (ast:arith) : arith :=
   match ast with
   | Const n => Const n
   | Var x => Var x
-  | Let x e b => Let x e b
+  | Let x e b => Let x (commuter e) (commuter b)
   | Plus e1 e2 => Plus (commuter e2) (commuter e1) 
   | Times e1 e2 => Times (commuter e2) (commuter e1)
   end.
@@ -73,6 +73,7 @@ Fixpoint substitute (e1:arith) (v:string) (e2:arith) : arith :=
   match e1 with
   | Const n => Const n
   | Var x => if x =? v then e2 else Var x
+  | Let x e' e'' => if x =? v then (Let x e' e'') else (Let x e' (substitute e'' v e2))
   | Plus p1 p2 => Plus (substitute p1 v e2) (substitute p2 v e2)
   | Times p1 p2 => Times (substitute p1 v e2) (substitute p2 v e2)
   end.
@@ -86,6 +87,9 @@ Proof.
   - simpl. case_eq (x =? replaceThis).
    + intros. linear_arithmetic.
    + intros. simpl. linear_arithmetic.
+  - simpl. case_eq (x =? replaceThis).
+   + intros. simpl. linear_arithmetic.
+   + intros. simpl. linear_arithmetic.
   - simpl. linear_arithmetic.
   - simpl. linear_arithmetic.
 Qed.
@@ -98,6 +102,9 @@ Proof.
   - simpl. case_eq (x =? replaceThis).
    + rewrite eqb_eq. intros. rewrite H. reflexivity.
    + easy.
+  - simpl. case_eq (x =? replaceThis).
+   + easy.
+   + intros. rewrite IHinThis2. easy.
   - simpl. rewrite IHinThis1. rewrite IHinThis2. reflexivity.
   - simpl. rewrite IHinThis1. rewrite IHinThis2. reflexivity.
 Qed.
@@ -111,6 +118,9 @@ Proof.
   - simpl. case_eq (x =? replaceThis).
    + reflexivity.
    + simpl. reflexivity.
+  - simpl. case_eq (x =? replaceThis).
+   + simpl. easy.
+   + intros. simpl. rewrite IHinThis2. easy.
   - simpl. rewrite IHinThis1. rewrite IHinThis2. reflexivity.
   - simpl. rewrite IHinThis1. rewrite IHinThis2. reflexivity.
 Qed.
@@ -126,6 +136,18 @@ Fixpoint eval (e:arith) (v:valuation) : nat :=
             | None => 0
             | Some p => p
             end
+ | Let x e1 e2 => eval e2 (v & {{x --> (eval e1 v)}})
  | Plus e1 e2 => (eval e1 v) + (eval e2 v)
  | Times e1 e2 => (eval e1 v) * (eval e2 v)
  end.
+
+Example ex1 := Let "x" (Const 1)
+               (Let "y" (Const 2)
+                      (Plus (Var "x") (Var "y"))).
+Example ex2 := Let "x" (Const 1)
+               (Let "y" (Const 2)
+                      (Plus (Var "x") (Times (Var "y") (Var "z")))).
+
+Compute eval ex1 empty.
+Compute eval ex2 empty.
+
