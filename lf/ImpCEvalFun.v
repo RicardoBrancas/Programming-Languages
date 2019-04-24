@@ -36,6 +36,17 @@ Fixpoint ceval_step1 (st : state) (c : com) : state :=
   end.
 Close Scope imp_scope.
 
+(* 1.1 It is not possible to trivially write an evalutaion function for
+   the Imp language in coq, since such a function would not be guaranteed
+   to terminate. This is disalowed by coq since it would violate some of
+   the logical constructs. *)
+
+(* 1.2 A step-indexed evaluator is an evaluator that has a limit on the
+   maximum number of iterations allowed. This would solve our problem by
+   guarenteeing that all programs terminate in a finite number of steps.
+   This however introduces the problem of choosing the maximum number of
+   iterations. *)
+
 (** As we remarked in chapter [Imp], in a traditional functional
     programming language like ML or Haskell we could write the WHILE
     case as follows:
@@ -210,17 +221,21 @@ Definition test_ceval (st:state) (c:com) :=
    [X] (inclusive: [1 + 2 + ... + X]) in the variable [Y].  Make sure
    your solution satisfies the test that follows. *)
 
-Definition pup_to_n : com
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Open Scope imp_scope.
+Definition pup_to_n : com :=
+  Y ::= 0;;
+  WHILE ~(X = 0) DO
+    Y ::= Y + X;;
+    X ::= X - 1
+  END
+  .
+Close Scope imp_scope.
 
-(* 
 
 Example pup_to_n_1 :
   test_ceval (X !-> 5) pup_to_n
   = Some (0, 15, 0).
 Proof. reflexivity. Qed.
-
-    [] *)
 
 (** **** Exercise: 2 stars, standard, optional (peven)  
 
@@ -228,9 +243,21 @@ Proof. reflexivity. Qed.
     sets [Z] to [1] otherwise.  Use [test_ceval] to test your
     program. *)
 
-(* FILL IN HERE 
+Open Scope imp_scope.
+Definition peven : com :=
+  WHILE ~(X <= 1) DO
+    X ::= X - 2
+  END;;
+  Z ::= X
+  .
+Close Scope imp_scope.
 
-    [] *)
+Compute test_ceval (X !-> 5) peven.
+
+Example peven_1 :
+  test_ceval (X !-> 5) peven
+  = Some (1, 0, 1).
+Proof. reflexivity. Qed.
 
 (* ################################################################# *)
 (** * Relational vs. Step-Indexed Evaluation *)
@@ -397,3 +424,44 @@ Proof.
   omega. omega.  Qed.
 
 (* Wed Jan 9 12:02:46 EST 2019 *)
+
+Inductive cond_state : Type :=
+| OK (st:state) (n:nat)
+| NOK (msg:string) (n:nat).
+
+Open Scope imp_scope.
+Fixpoint ceval_imp (st : state) (c : com) (i : nat) (count:nat)
+                    : cond_state :=
+  match i with
+  | O => NOK "Failed after" count
+  | S i' =>
+    match c with
+      | SKIP =>
+          OK st (count + 1)
+      | l ::= a1 =>
+          OK (l !-> aeval st a1 ; st) (count + 1)
+      | c1 ;; c2 =>
+          match (ceval_imp st c1 i' (count + 1)) with
+          | OK st' c' => ceval_imp st' c2 i' (count + 1)
+          | NOK m c => NOK m c
+          end
+      | TEST b THEN c1 ELSE c2 FI =>
+          if (beval st b)
+            then ceval_imp st c1 i' (count + 1)
+            else ceval_imp st c2 i' (count + 1)
+      | WHILE b1 DO c1 END =>
+          if (beval st b1)
+          then match (ceval_imp st c1 i' (count + 1)) with
+               | OK st' c' => ceval_imp st' c i' (count + 1)
+               | NOK m c => NOK m c
+               end
+          else OK st (count + 1)
+    end
+  end.
+
+
+Compute ceval_imp (X !-> 5) (WHILE false DO X ::= 0 END) 20 0.
+
+Compute ceval_imp (X !-> 5) (WHILE true DO X ::= 0 END) 20 0.
+
+Close Scope imp_scope.

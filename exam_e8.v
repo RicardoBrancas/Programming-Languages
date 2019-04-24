@@ -46,7 +46,7 @@ Theorem natPnMn : forall n, n - n = 0.
 Proof.
   intros. induction n.
   - easy.
-  - simpl. rewrite IHn. easy.
+  - simpl. exact IHn.
 Qed.
 
 Theorem natAPnMn : forall a n, a + n - n = a.
