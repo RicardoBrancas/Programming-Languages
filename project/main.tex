@@ -1,0 +1,158 @@
+\documentclass{beamer}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+\usetikzlibrary{arrows,positioning}
+
+\usetheme{fibeamer}
+
+%% ===   DEFINITIONS   ===
+
+\theoremstyle{definition} % See Lesson Three of the LaTeX Manual for more on this kind of "proclamation."
+\newtheorem*{dfn}{A Reasonable Definition}
+
+\tikzstyle{box1} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=fibeamer@blue, fill=fibeamer@lightBlue]
+
+%% === END DEFINITIONS ===
+
+\title{Program Synthesis}
+\subtitle{An onverview of logic based approaches}
+\author{Ricardo Brancas}
+\institute{Instituto Superior Técnico}
+
+\AtBeginSection[]{
+\begin{frame}
+    \frametitle{Presentation Outline}
+    \tableofcontents[currentsection]
+\end{frame}
+}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\section{What is it?}
+
+\begin{frame}
+    \frametitle{Program Synthesis}
+
+    \centering
+    \begin{tikzpicture}[node distance=2cm]
+
+        \node[box1] (spec)                     {Specification};
+      \onslide<2->{
+        \node[box1] (synth) [below of = spec]  {Synthesiser};
+      }
+        \node[box1] (prog)  [below of = synth] {Program};
+
+      \onslide<2->{
+        \draw[->] (spec)  -- (synth);
+        \draw[->] (synth) -- (prog);
+      }
+
+    \end{tikzpicture}
+
+    %TODO add exemples of specifications
+\end{frame}
+
+\begin{frame}
+    \frametitle{A Counterexample}
+
+    Consider the function
+
+    $$ f(x)=
+    \begin{cases} % See Lesson Twelve of the LaTeX Manual for more on cases.
+    x^2\sin(1/x), &\text{if }x\neq0 \\
+    0, &\text{if }x=0
+    \end{cases}
+    $$
+
+    Let's see what $f'(0)$ is.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Finding $f'(0)$}
+
+    By the definition of derivative,
+    \begin{eqnarray*} % As usual, the asterisk suppresses the numbering of each line in the array.
+    f'(0)&=&\pause\displaystyle\lim_{h\to 0}\frac{f(0+h)-f(0)}{h}\\
+    \pause&=&\displaystyle\lim_{h\to 0}\frac{h^2\sin(1/h)-0}{h}\\
+    \pause&=&\displaystyle\lim_{h\to 0}h\sin(1/h)\\
+    \end{eqnarray*}
+
+    Since $-h\leq h\sin(1/h)\leq h$ \pause and $\displaystyle\lim_{h\to 0}(-h)=\displaystyle\lim_{h\to 0}(h)=0$, \pause the \uncover<7->{Squeeze }Theorem says \pause $f'(0)=0.$
+    % The command \uncover<m->{STUFF} means that STUFF will appear starting in the mth slide of the frame.
+    % The command \uncover<m-n>{STUFF} means that STUFF will appear from the mth slide to the nth slide of the frame.
+\end{frame}
+
+\begin{frame}
+    \frametitle{What Really Happens at $x=0$?}
+    \begin{columns} % This creates a frame with multiple columns.
+    \begin{column}{0.5\textwidth} % The first column will be 50% as wide as the width of text on the page.
+    But $f(x)$ oscillates wildly as $x\to 0$, so even though $f'(0)=0$, $f$ has neither max, min, nor inflection point at $x=0$.
+    \end{column}
+
+    \pause
+
+    \begin{column}{0.5\textwidth} % Now begins our second column.
+    \includegraphics[width=5cm, height=5cm]{graph1.png} % Beamer doesn't like to display .eps files. This .png was converted from .eps using Adobe Acrobat. The file graph1.png should be in the same folder as the .tex file.
+    \begin{center}
+    \textcolor{orange}{$y=f(x)$}, \textcolor{red}{$y=x^2$}, \textcolor{green}{$y=-x^2$} % This changes the text color.
+    \end{center}
+    \end{column}
+    \end{columns}
+\end{frame}
+
+\section{What Does $g'(c)>0$ Mean?}
+
+\begin{frame}
+    \frametitle{How to Define ``Increasing at a Point''?}
+    It's natural to think that if $g'(c)>0$ then $g$ must be ``increasing at $x=c$.''
+
+    \pause But what does ``increasing at $x=c$'' really mean?
+
+    \pause \begin{dfn} % We created the proclamation dfn near the start of the document.
+    A function $g$ is \emph{increasing at $x=c$} if there is an open interval $I=(c-\delta,c+\delta)$ such that \pause if $x_1, x_2\in I$, \pause then $x_1<x_2\Rightarrow \pause g(x_1)<g(x_2)$.
+    \end{dfn}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Our Function with a Slight Twist}
+    Let's modify our function to
+
+    $$ g(x)=
+    \begin{cases}
+    0.5x+x^2\sin(1/x), &\text{if }x\neq0 \\
+    0, &\text{if }x=0
+    \end{cases}
+    $$
+
+    Using the definition of derivative as before, we will find that $g'(0)=0.5$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{What Really Happens at $x=0$?}
+    However, $g(x)$ still oscillates enough as $x\to 0$ that there is no open interval containing $x=0$ that satisfies our definition of $g$ increasing at $x=0$ even though $g'(0)>0$.\pause
+
+    \begin{center}
+    \includegraphics[width=5cm, height=5cm]{graph2.png}
+
+    \textcolor{orange}{$y=g(x)$}, \textcolor{red}{$y=x^2+0.5x$}, \textcolor{green}{$y=x^2-0.5x$}
+    \end{center}
+
+\end{frame}
+
+\section{Further Work}
+
+\begin{frame}
+    The function $f(x)$ introduced earlier has other interesting properties, one of which is the fact that while $f'(0)$ exists, $f'(x)$ is discontinuous at $x=0$.\vspace{.5cm}
+
+    We leave it to you to work this out for yourself and to explore this interesting function further.\vspace{.5cm}
+
+    Thank you for your attention today.
+\end{frame}
+
+\end{document}
