@@ -3,8 +3,9 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{listings}
+\usepackage{tikz-qtree}
 
-\usetikzlibrary{arrows,positioning,decorations.pathreplacing}
+\usetikzlibrary{arrows,positioning,decorations.pathreplacing,fit}
 
 \usetheme{fibeamer}
 
@@ -18,8 +19,28 @@
 \newtheorem*{dfn}{A Reasonable Definition}
 
 \tikzstyle{tex1} = [minimum width=3cm, minimum height=1cm, text centered]
+\tikzstyle{tef1} = [minimum width=2.4cm, minimum height=1cm, text centered]
 \tikzstyle{tsml} = [minimum width=3cm, text centered, font=\footnotesize]
-\tikzstyle{box1} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=fibeamer@blue, fill=fibeamer@lightBlue]
+\tikzstyle{box1} = [rectangle, rounded corners, minimum width=3cm,
+                    minimum height=1cm, text centered, draw=fibeamer@blue,
+                    fill=fibeamer@lightBlue]
+\tikzstyle{box2} = [rectangle, rounded corners, minimum width=3cm,
+                    minimum height=1cm, text centered, draw=fibeamer@orange,
+                    fill=fibeamer@lightOrange]
+
+\tikzset{
+    invisible/.style={opacity=0},
+    visible on/.style={alt={#1{}{invisible}}},
+    alt/.code args={<#1>#2#3}{%
+        \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+    }
+}
+
+\lstdefinestyle{imp}{
+	morekeywords={TEST,THEN,ELSE,FI,WHILE,DO,END,SKIP,true,false,:=},
+  keywordstyle=\bfseries,
+  moredelim=**[is][\color{fibeamer@darkBlue}]{@}{@},
+}
 
 %% === END DEFINITIONS ===
 
@@ -59,6 +80,7 @@
         \node[tsml] (spec1) [right = .75cm of spec, align=left] {Input/Output Examples\\
                                                                  First-order Logic Specification\\
                                                                  Hoare Logic Specification\\
+                                                                 Separation Logic Specification\\
                                                                  ...};
         \draw[decorate,decoration={brace, raise=7pt, amplitude=5pt}] (spec1.south west) -- (spec1.north west);
         %TODO add more examples of specifications
@@ -77,7 +99,7 @@
 \begin{frame}
     \frametitle{Proof of Correctness}
 
-    How can we check if a program is correct (according to the specification)?\\~\\
+    How can we check if a program is correct (wrt. to the specification)?\\~\\
     \pause
     We can use a logic formulation.
 
@@ -88,16 +110,22 @@
 
 
 \begin{frame}
-    \frametitle{First Order Logic}
+    \frametitle{First-order Logic}
 
     %TODO define FOL
+    \begin{block}{First-order Logic (FOL)}
+        Consists of expressions, quantified over variables, containing predicates and functions.
+    \end{block}
 
     \begin{example}
         $\forall x.P(x)$\\
-        %\hspace*{20pt} for all $x$, $P(x)$ must hold\\
-        $\exists y \forall x.Q(y, x)$\\
-        %\hspace*{20pt} there is some $y$, such that for all $x$, $Q(y, x)$ holds
+        $\exists y \forall x.Q(y, x) \wedge P(f(y))$\\
     \end{example}
+
+    % \note{
+    %     \hspace*{20pt} for all $x$, $P(x)$ must hold
+    %     \hspace*{20pt} there is some $y$, such that for all $x$, $Q(y, x)$ holds
+    % }
 
     \pause
     First order logic is undecidable (in general, it is impossible to check if a given formula is correct).
@@ -132,6 +160,8 @@
         $(f(b) = d) \wedge (f(a) + f(b) = d) \wedge (a = d)$
     \end{exampleblock}
 
+    \pause
+
     \begin{exampleblock}{Example: Linear Arithmetic}
         $3x + 2y < 3$\\
         $x + y + z = 45$
@@ -152,14 +182,14 @@
 \begin{frame}[fragile]
     \frametitle{Proof of Correctness (II)}
 
-    How can we check if a program is correct (according to the specification)?\\
+    How can we check if a program is correct (wrt. to the specification)?\\
     We can use a logic formulation.\\
 
     \begin{columns}[T] % align columns
         \begin{column}{.48\textwidth}
             \begin{exampleblock}{Simple Hoare Triple}
-                \vspace*{-\baselineskip}\setlength\belowdisplayshortskip{0pt}
-                \begin{lstlisting}[xleftmargin=1em, escapechar=!]
+                \vspace*{-.2\baselineskip}
+				\begin{lstlisting}[xleftmargin=1em, escapechar=!,style=imp]
 !\colorbox{fibeamer@lightBlue}{\{ X = 3 \}}!
 Y := X - 2
 X := X - 1
@@ -170,18 +200,127 @@ X := X - 1
         \end{column}%
         \begin{column}{.48\textwidth}
             \begin{exampleblock}{SMT Formula}
-                \vspace*{-1.5\baselineskip}\setlength\belowdisplayshortskip{0pt}
+                \vspace*{-1.5\baselineskip}
                 \begin{align*}\footnotesize& \tikz[baseline]{\node[fill=fibeamer@lightBlue,anchor=base] (t2) {$X_0 = 3$};} \\
                     \wedge \enspace & Y_0 = (X_0 - 2) \\
                     \wedge \enspace & X_1 = (X_0 - 1) \\
                     \wedge \enspace & \tikz[baseline]{\node[fill=fibeamer@lightOrange,anchor=base] (t2) {$X_1 = 2 \wedge Y_0 = 1$};}
                 \end{align*}
-
+                \vspace*{-1\baselineskip}
             \end{exampleblock}
         \end{column}%
     \end{columns}~\\
     \pause
     We say that a program is correct, if the corresponding SMT formula is satisfiable.
+\end{frame}
+
+\section{Anatomy of a Synthesiser} %TODO weird name xD
+
+\begin{frame}
+    \frametitle{Generating Programs}
+
+    Now we can check if a given program is correct. But how do we generate them?\\~\\
+
+    \pause
+
+    \begin{block}{Enumeration}
+        We can use the grammar of the language to generate (enumerate) all possible programs.
+    \end{block}
+
+    \pause
+
+    \begin{alertblock}{Problem}
+        The space of possible programs is exponentially large. It is impossible to just check all programs.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Generating Programs (Imp language)}
+
+    \resizebox{\textwidth}{!}{%
+        \begin{tikzpicture}
+            \tikzset{level distance=90pt}
+            \Tree
+                [. \node {$\hl{com}$};
+                    [. \node {$CSkip$};]
+                    [. \node {$CAss(\hl{x}, \hl{aexp})$};
+                        [. \node {$CAss(``a", \hl{aexp})$};
+                            [. \node {$CAss(``a", ANum(\hl{n}))$};
+                                [. \node {...}; ]
+                            ]
+                            [. \node {$CAss(``a", APlus(\hl{aexp_1}, \hl{aexp_2}))$};
+                                [. \node {...}; ]
+                            ]
+                            [. \node {...};]
+                        ]
+                        [. \node {$CAss(``b", \hl{aexp})$};
+                            [. \node {...}; ]
+                        ]
+                        [. \node {...};]
+                    ]
+                    [.\node {$CSeq(\hl{com_1}, \hl{com_2})$};
+                        [. \node {...}; ]
+                    ]
+                    [.\node {$CIf(\hl{bexp}, \hl{com_1}, \hl{com_2})$};
+                        [. \node {...}; ]
+                    ]
+                    [.\node {$CWhile(\hl{bexp}, \hl{com})$};
+                        [. \node {...}; ]
+                    ]
+                ];
+        \end{tikzpicture}
+    }
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+    \frametitle{Deduction Engine}
+
+	The job of the deduction engine is:
+
+	\begin{itemize}
+		\item To prune the search when incorrect programs are generated.
+	\end{itemize}
+
+	\begin{exampleblock}{Example}
+		\begin{lstlisting}[style=imp]
+@TODO@
+		\end{lstlisting}
+	\end{exampleblock}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{The simplest synthesiser}
+
+	\centering
+    \begin{tikzpicture}[node distance=2cm]
+
+        \node[box1] (enum) [] {Enumerator};
+        \node[box1] (dedu) [below of = enum] {Deduction Engine};
+		
+		\node[draw,dotted,fit=(enum) (dedu)] (synt) {};
+
+		\node[tef1] (spec) [left  = .5cm of synt] {Specification};
+		\node[tef1] (prog) [right = .5cm of synt] {Program};
+
+		\draw[->]   (spec)  -- (synt.west);
+		\draw[->]   (synt.east) -- (prog);
+
+		\draw[->]   ([xshift=1em]enum.south) -- ([xshift=1em]dedu.north);
+		\draw[->]   ([xshift=-1em]dedu.north) -- ([xshift=-1em]enum.south);
+
+    \end{tikzpicture}~\\
+
+	\pause
+
+	\begin{alertblock}{Problem}
+		The enumerator is dumb. It can get stuck generating programs that will never satisfy the specification.\\
+		This is the central problem in program synthesis.
+	\end{alertblock}
+
 \end{frame}
 
 \end{document}
