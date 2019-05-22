@@ -4,15 +4,25 @@
 \usepackage{tikz}
 \usepackage{listings}
 \usepackage{tikz-qtree}
+\usepackage[backend=bibtex]{biblatex}
 
 \usetikzlibrary{arrows,positioning,decorations.pathreplacing,fit}
 
 \usetheme{fibeamer}
 
-\newcommand{\hl}{\textcolor{fibeamer@darkBlue} }
-%\newcommand{\mcolorbox}[1, 2]{\colorbox{#1}{$\displaystyle #2$}}
-\newcommand{\highlight}[1]{\colorbox{yellow}{\ensuremath{#1}}}
+\newcommand{\hl}{\textcolor{fibeamer@darkColor1}}
 
+\newif\ifstartedinmathmode
+\newcommand{\animcb}[4]{%
+\begingroup%
+\relax\ifmmode\startedinmathmodetrue\else\startedinmathmodefalse\fi%
+\setlength{\fboxsep}{1pt}%
+\only<#1>{\vphantom{gbf}#4}\only<#2>{\colorbox{#3}{\vphantom{gbf}\ifstartedinmathmode$#4$\else#4\fi}}%
+\endgroup}
+
+\newcommand{\pred}[1]{\animcb{1}{2-}{fibeamer@lightColor1}{#1}}
+\newcommand{\func}[1]{\animcb{1}{2-}{fibeamer@lightColor2}{#1}}
+\newcommand{\quant}[1]{\animcb{1}{2-}{fibeamer@lightColor3}{#1}}
 %% ===   DEFINITIONS   ===
 
 \theoremstyle{definition} % See Lesson Three of the LaTeX Manual for more on this kind of "proclamation."
@@ -22,11 +32,11 @@
 \tikzstyle{tef1} = [minimum width=2.4cm, minimum height=1cm, text centered]
 \tikzstyle{tsml} = [minimum width=3cm, text centered, font=\footnotesize]
 \tikzstyle{box1} = [rectangle, rounded corners, minimum width=3cm,
-                    minimum height=1cm, text centered, draw=fibeamer@blue,
-                    fill=fibeamer@lightBlue]
+                    minimum height=1cm, text centered, draw=fibeamer@color1,
+                    fill=fibeamer@lightColor1]
 \tikzstyle{box2} = [rectangle, rounded corners, minimum width=3cm,
-                    minimum height=1cm, text centered, draw=fibeamer@orange,
-                    fill=fibeamer@lightOrange]
+                    minimum height=1cm, text centered, draw=fibeamer@color2,
+                    fill=fibeamer@lightColor2]
 
 \tikzset{
     invisible/.style={opacity=0},
@@ -39,8 +49,10 @@
 \lstdefinestyle{imp}{
 	morekeywords={TEST,THEN,ELSE,FI,WHILE,DO,END,SKIP,true,false,:=},
   keywordstyle=\bfseries,
-  moredelim=**[is][\color{fibeamer@darkBlue}]{@}{@},
+  moredelim=**[is][\color{fibeamer@darkColor1}]{@}{@},
 }
+
+\bibliography{references.bib}
 
 %% === END DEFINITIONS ===
 
@@ -97,7 +109,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof of Correctness}
+    \frametitle{Formal Verification}
 
     How can we check if a program is correct (wrt. to the specification)?\\~\\
     \pause
@@ -114,58 +126,83 @@
 
     %TODO define FOL
     \begin{block}{First-order Logic (FOL)}
-        Consists of expressions, quantified over variables, containing predicates and functions.
+        A superset of \hl{propositional logic}, adding \animcb{1-1}{2-}{fibeamer@lightColor1}{predicates},
+				\animcb{1-1}{2-}{fibeamer@lightColor2}{functions} and \animcb{1-1}{2-}{fibeamer@lightColor3}{quantifiers}.
     \end{block}
 
-    \begin{example}
-        $\forall x.P(x)$\\
-        $\exists y \forall x.Q(y, x) \wedge P(f(y))$\\
-    \end{example}
+		\only<1>{
+			\begin{exampleblock}{Propositional Logic}
+	        $P \wedge Q$\\
+	        $Q \implies P \vee R$\\
+	    \end{exampleblock}
+		}
 
-    % \note{
-    %     \hspace*{20pt} for all $x$, $P(x)$ must hold
-    %     \hspace*{20pt} there is some $y$, such that for all $x$, $Q(y, x)$ holds
-    % }
 
-    \pause
-    First order logic is undecidable (in general, it is impossible to check if a given formula is correct).
-    How can we solve this?
+		\only<2->{
+			\begin{exampleblock}{First-order Logic}
+				$\quant{\forall} x.\pred{P}(x)$\\
+				$\quant{\exists} y \quant{\forall} x.\pred{Q}(y, x) \wedge \pred{P}(\func{f}(y))$\\
+	    	\end{exampleblock}
+		}
+
+		\onslide<3->{
+			\begin{alertblock}{FOL Decidability}
+		    	First-order logic is undecidable.
+			\end{alertblock}
+		}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Decidability}
+
+    \begin{block}{Decidable Problem}
+        A problem is \hl{decidable} if if there is a way of deriving the correct answer.
+    \end{block}
+
+		\begin{block}{Undecidable Problem}
+        Complementary, if a problem is \hl{undecidable} then it is \textit{provably
+				impossible} to create an algorithm that always derives the correct answer.
+    \end{block}~\\
+
+		\pause
+		Then how can we check a first-order formula?
+
 \end{frame}
 
 \begin{frame}
     \frametitle{Satisfiability Modulo Theories}
 
     \begin{block}{Satisfiability Modulo Theory (SMT)}
-        A decision problem on decidable subsets of first order logic.\\
-        Such subsets are called theories.
+		A decision problem on \hl{decidable subsets} of first-order logic.\\
+		Such subsets are called \hl{theories}.
     \end{block}
 
-    \begin{block}{$T$-satisfiability}
-        Given a theory \hl{$T$}, we say that a formula \hl{$\Phi$} is \hl{$T$}-satisfiable iff there is some model \hl{$M$} of \hl{$T$}, such that \hl{$\Phi$} holds in \hl{$M$}.
-    \end{block}~\\
-
-    A model can be seen as a mapping from variables to constants/functions.
-
-    %TODO what is a model?
-\end{frame}
-
-\begin{frame}
-    \frametitle{Theories}
-
-    \begin{block}{Theory}
-        A subset of first-order logic that is decidable. Theories can be combined to create more expressive something. %TODO
-    \end{block}
-
-    \begin{exampleblock}{Example: Equality with Uninterpreted Functions}
+	\begin{exampleblock}{Theory: Equality with Uninterpreted Functions}
         $(f(b) = d) \wedge (f(a) + f(b) = d) \wedge (a = d)$
     \end{exampleblock}
 
     \pause
 
-    \begin{exampleblock}{Example: Linear Arithmetic}
+    \begin{exampleblock}{Theory: Linear Arithmetic}
         $3x + 2y < 3$\\
         $x + y + z = 45$
     \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Satisfiability Modulo Theories - Models}
+
+    % \begin{block}{$T$-satisfiability}
+    %     Given a theory \hl{$T$}, we say that a formula \hl{$\Phi$} is \hl{$T$}-satisfiable iff there is some model \hl{$M$} of \hl{$T$}, such that \hl{$\Phi$} holds in \hl{$M$}.
+    % \end{block}
+    A model can be seen as a mapping from variables to constants/functions, and represents
+		a solution of the formula.\\~\\
+
+		\begin{exampleblock}{Example: Model for $\{3x + 2y < 3\}$}
+				$\{ x \mapsto 0, y \mapsto 1\}$
+		\end{exampleblock}
+
+    %TODO more models?
 \end{frame}
 
 \begin{frame}
@@ -180,7 +217,7 @@
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Proof of Correctness (II)}
+    \frametitle{Formal Verification}
 
     How can we check if a program is correct (wrt. to the specification)?\\
     We can use a logic formulation.\\
@@ -190,10 +227,10 @@
             \begin{exampleblock}{Simple Hoare Triple}
                 \vspace*{-.2\baselineskip}
 				\begin{lstlisting}[xleftmargin=1em, escapechar=!,style=imp]
-!\colorbox{fibeamer@lightBlue}{\{ X = 3 \}}!
-Y := X - 2
-X := X - 1
-!\colorbox{fibeamer@lightOrange}{\{ X = 2 $\wedge$ Y = 1\}}!
+!\colorbox{fibeamer@lightColor1}{\{ X = 3 \}}!
+Y ::= X - 2;;
+X ::= X - 1
+!\colorbox{fibeamer@lightColor2}{\{ X = 2 $\wedge$ Y = 1\}}!
 
                 \end{lstlisting}
             \end{exampleblock}
@@ -201,10 +238,10 @@ X := X - 1
         \begin{column}{.48\textwidth}
             \begin{exampleblock}{SMT Formula}
                 \vspace*{-1.5\baselineskip}
-                \begin{align*}\footnotesize& \tikz[baseline]{\node[fill=fibeamer@lightBlue,anchor=base] (t2) {$X_0 = 3$};} \\
+                \begin{align*}\footnotesize& \tikz[baseline]{\node[fill=fibeamer@lightColor1,anchor=base] (t2) {$X_0 = 3$};} \\
                     \wedge \enspace & Y_0 = (X_0 - 2) \\
                     \wedge \enspace & X_1 = (X_0 - 1) \\
-                    \wedge \enspace & \tikz[baseline]{\node[fill=fibeamer@lightOrange,anchor=base] (t2) {$X_1 = 2 \wedge Y_0 = 1$};}
+                    \wedge \enspace & \tikz[baseline]{\node[fill=fibeamer@lightColor2,anchor=base] (t2) {$X_1 = 2 \wedge Y_0 = 1$};}
                 \end{align*}
                 \vspace*{-1\baselineskip}
             \end{exampleblock}
@@ -230,7 +267,7 @@ X := X - 1
     \pause
 
     \begin{alertblock}{Problem}
-        The space of possible programs is exponentially large. It is impossible to just check all programs.
+        The space of possible programs, of fixed length, is exponentially large. It is impossible to just check all programs.
     \end{alertblock}
 \end{frame}
 
@@ -273,10 +310,8 @@ X := X - 1
 
 \end{frame}
 
-
-
 \begin{frame}[fragile]
-    \frametitle{Deduction Engine}
+    \frametitle{(Simple) Deduction Engine}
 
 	The job of the deduction engine is:
 
@@ -284,11 +319,11 @@ X := X - 1
 		\item To prune the search when incorrect programs are generated.
 	\end{itemize}
 
-	\begin{exampleblock}{Example}
-		\begin{lstlisting}[style=imp]
-@TODO@
-		\end{lstlisting}
-	\end{exampleblock}
+% 	\begin{exampleblock}{Example}
+% 		\begin{lstlisting}[style=imp]
+% @TODO@
+% 		\end{lstlisting}
+% 	\end{exampleblock}
 
 \end{frame}
 
@@ -300,7 +335,7 @@ X := X - 1
 
         \node[box1] (enum) [] {Enumerator};
         \node[box1] (dedu) [below of = enum] {Deduction Engine};
-		
+
 		\node[draw,dotted,fit=(enum) (dedu)] (synt) {};
 
 		\node[tef1] (spec) [left  = .5cm of synt] {Specification};
@@ -312,14 +347,84 @@ X := X - 1
 		\draw[->]   ([xshift=1em]enum.south) -- ([xshift=1em]dedu.north);
 		\draw[->]   ([xshift=-1em]dedu.north) -- ([xshift=-1em]enum.south);
 
-    \end{tikzpicture}~\\
+    \end{tikzpicture}~\\~\\
 
 	\pause
 
 	\begin{alertblock}{Problem}
-		The enumerator is dumb. It can get stuck generating programs that will never satisfy the specification.\\
-		This is the central problem in program synthesis.
+		This idea is very simple, but it has a big problem: most of the time is spent
+		testing very similar programs that will never lead to a solution.
 	\end{alertblock}
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Possible Improvements}
+
+	\begin{itemize}
+		\item Domain Specific Languages (DSL)
+		\item Partial evaluation
+		\item Conflict-driven learning
+		\item Type theory
+		\item Synthetic separation logic
+		\item ...
+	\end{itemize}
+
+\end{frame}
+
+\section{A modern synthesiser: Synquid}
+
+\begin{frame}
+	\frametitle{\textbf{Synquid}}
+	\framesubtitle{by Nadia Polikarpova}
+
+	Let's look at a modern synthesiser:
+	\begin{itemize}
+		\item bidirectional synthesis
+		\item liquid types
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Bidirectional synthesis}
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Liquid Types}
+
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Example: \texttt{replicate}}
+
+	Taking a number $n$ and some object $\alpha$,\\
+	return a list containing $n$ copies of $\alpha$.\\~\\
+
+	\begin{exampleblock}{Specification}
+		\vspace*{-.2\baselineskip}
+		\begin{lstlisting}[xleftmargin=1em, escapechar=!,style=imp]
+replicate :: n:Nat !$\mapsto$! x:!$\alpha$! !$\mapsto$! {!$\nu$!:List !$\alpha$! | len !$\nu$! = n}
+replicate = ??
+		\end{lstlisting}
+	\end{exampleblock}
+
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Example: \texttt{replicate}}
+
+	\begin{exampleblock}{Auxiliary components}
+		\vspace*{-.2\baselineskip}
+		\begin{lstlisting}[xleftmargin=1em, escapechar=!,style=imp]
+zero :: {!$\nu$!:Int | !$\nu$! = 0}
+inc :: x:Int !$\mapsto$! {!$\nu$!:Int | !$\nu$! = x+1}
+dec :: x:Int !$\mapsto$! {!$\nu$!:Int | !$\nu$! = x-1}
+leq :: x:Int !$\mapsto$! y:Int !$\mapsto$! {!$\nu$!:Bool | !$\nu$! = x!$\le$!y}
+neq :: x:Int !$\mapsto$! y:Int !$\mapsto$! {!$\nu$!:Bool | !$\nu$! = x!$\neq$!y}
+		\end{lstlisting}
+	\end{exampleblock}
 
 \end{frame}
 
