@@ -1,0 +1,45 @@
+
+@article{feng_component-based_2016,
+	title = {Component-based Synthesis of Table Consolidation and Transformation Tasks from Examples},
+	url = {http://arxiv.org/abs/1611.07502},
+	abstract = {This paper presents an example-driven synthesis technique for automating a large class of data preparation tasks that arise in data science. Given a set of input tables and an out- put table, our approach synthesizes a table transformation program that performs the desired task. Our approach is not restricted to a fixed set of {DSL} constructs and can synthesize programs from an arbitrary set of components, including higher-order combinators. At a high-level, our approach performs type-directed enumerative search over partial pro- grams but incorporates two key innovations that allow it to scale: First, our technique can utilize any first-order specification of the components and uses {SMT}-based deduction to reject partial programs. Second, our algorithm uses partial evaluation to increase the power of deduction and drive enumerative search. We have evaluated our synthesis algorithm on dozens of data preparation tasks obtained from on-line forums, and we show that our approach can automatically solve a large class of problems encountered by R users.},
+	journaltitle = {{arXiv}:1611.07502 [cs]},
+	author = {Feng, Yu and Martins, Ruben and Van Geffen, Jacob and Dillig, Isil and Chaudhuri, Swarat},
+	date = {2016-11-22},
+	eprinttype = {arxiv},
+	eprint = {1611.07502},
+	keywords = {morpheus, Programming Languages},
+	file = {arXiv\:1611.07502 PDF:/home/ricardo/Zotero/storage/6ZFNPUVP/Feng et al. - 2016 - Component-based Synthesis of Table Consolidation a.pdf:application/pdf;arXiv.org Snapshot:/home/ricardo/Zotero/storage/GNBPFSII/1611.html:text/html}
+}
+
+@inproceedings{rondon_liquid_2008,
+	location = {New York, {NY}, {USA}},
+	title = {Liquid Types},
+	isbn = {978-1-59593-860-2},
+	doi = {10.1145/1375581.1375602},
+	series = {{PLDI} '08},
+	abstract = {We present Logically Qualified Data Types, abbreviated to Liquid Types, a system that combines Hindley-Milner type inference with Predicate Abstraction to automatically infer dependent types precise enough to prove a variety of safety properties. Liquid types allow programmers to reap many of the benefits of dependent types, namely static verification of critical properties and the elimination of expensive run-time checks, without the heavy price of manual annotation. We have implemented liquid type inference in {DSOLVE}, which takes as input an {OCAML} program and a set of logical qualifiers and infers dependent types for the expressions in the {OCAML} program. To demonstrate the utility of our approach, we describe experiments using {DSOLVE} to statically verify the safety of array accesses on a set of {OCAML} benchmarks that were previously annotated with dependent types as part of the {DML} project. We show that when used in conjunction with a fixed set of array bounds checking qualifiers, {DSOLVE} reduces the amount of manual annotation required for proving safety from 31\% of program text to under 1\%.},
+	pages = {159--169},
+	booktitle = {Proceedings of the 29th {ACM} {SIGPLAN} Conference on Programming Language Design and Implementation},
+	publisher = {{ACM}},
+	author = {Rondon, Patrick M. and Kawaguci, Ming and Jhala, Ranjit},
+	date = {2008},
+	keywords = {dependent types, hindley-milner, predicate abstraction, type inference},
+	file = {ACM Full Text PDF:/home/ricardo/Zotero/storage/DR28DXD7/Rondon et al. - 2008 - Liquid Types.pdf:application/pdf}
+}
+
+@inproceedings{polikarpova_program_2016,
+	location = {New York, {NY}, {USA}},
+	title = {Program Synthesis from Polymorphic Refinement Types},
+	isbn = {978-1-4503-4261-2},
+	doi = {10.1145/2908080.2908093},
+	series = {{PLDI} '16},
+	abstract = {We present a method for synthesizing recursive functions that provably satisfy a given specification in the form of a polymorphic refinement type. We observe that such specifications are particularly suitable for program synthesis for two reasons. First, they offer a unique combination of expressive power and decidability, which enables automatic verification—and hence synthesis—of nontrivial programs. Second, a type-based specification for a program can often be effectively decomposed into independent specifications for its components, causing the synthesizer to consider fewer component combinations and leading to a combinatorial reduction in the size of the search space. At the core of our synthesis procedure is a newalgorithm for refinement type checking, which supports specification decomposition. We have evaluated our prototype implementation on a large set of synthesis problems and found that it exceeds the state of the art in terms of both scalability and usability. The tool was able to synthesize more complex programs than those reported in prior work (several sorting algorithms and operations on balanced search trees), as well as most of the benchmarks tackled by existing synthesizers, often starting from a more concise and intuitive user input.},
+	pages = {522--538},
+	booktitle = {Proceedings of the 37th {ACM} {SIGPLAN} Conference on Programming Language Design and Implementation},
+	publisher = {{ACM}},
+	author = {Polikarpova, Nadia and Kuraj, Ivan and Solar-Lezama, Armando},
+	date = {2016},
+	keywords = {Functional Programming, Predicate Abstraction, Program Synthesis, Refinement Types},
+	file = {ACM Full Text PDF:/home/ricardo/Zotero/storage/HXZJNSZ9/Polikarpova et al. - 2016 - Program Synthesis from Polymorphic Refinement Type.pdf:application/pdf}
+}

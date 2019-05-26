@@ -52,6 +52,14 @@
   moredelim=**[is][\color{fibeamer@darkColor1}]{@}{@},
 }
 
+\lstdefinestyle{synquid}{
+	morekeywords={List,Nat,Int,Bool},
+	keywordstyle=\color{fibeamer@color1},
+	classoffset=1,
+	morekeywords={len},
+	keywordstyle=\color{fibeamer@color2}
+}
+
 \bibliography{references.bib}
 
 %% === END DEFINITIONS ===
@@ -88,7 +96,7 @@
       }
         \node[box1] (prog)  [below of = synth] {Program};
 
-      \onslide<3->{
+      \onslide<2->{
         \node[tsml] (spec1) [right = .75cm of spec, align=left] {Input/Output Examples\\
                                                                  First-order Logic Specification\\
                                                                  Hoare Logic Specification\\
@@ -227,14 +235,14 @@
             \begin{exampleblock}{Simple Hoare Triple}
                 \vspace*{-.2\baselineskip}
 				\begin{lstlisting}[xleftmargin=1em, escapechar=!,style=imp]
-!\colorbox{fibeamer@lightColor1}{\{ X = 3 \}}!
+!\animcb{1-1}{2-}{fibeamer@lightColor1}{\{ X = 3 \}}!
 Y ::= X - 2;;
 X ::= X - 1
-!\colorbox{fibeamer@lightColor2}{\{ X = 2 $\wedge$ Y = 1\}}!
+!\animcb{1-1}{2-}{fibeamer@lightColor2}{\{ X = 2 $\wedge$ Y = 1\}}!
 
                 \end{lstlisting}
             \end{exampleblock}
-        \end{column}%
+        \end{column}\pause%
         \begin{column}{.48\textwidth}
             \begin{exampleblock}{SMT Formula}
                 \vspace*{-1.5\baselineskip}
@@ -251,7 +259,7 @@ X ::= X - 1
     We say that a program is correct, if the corresponding SMT formula is satisfiable.
 \end{frame}
 
-\section{Anatomy of a Synthesiser} %TODO weird name xD
+\section{A very simple synthesiser} %TODO weird name xD
 
 \begin{frame}
     \frametitle{Generating Programs}
@@ -267,7 +275,7 @@ X ::= X - 1
     \pause
 
     \begin{alertblock}{Problem}
-        The space of possible programs, of fixed length, is exponentially large. It is impossible to just check all programs.
+        The space of possible programs of fixed length, is exponentially large. It is impossible to just check all programs.
     \end{alertblock}
 \end{frame}
 
@@ -310,22 +318,22 @@ X ::= X - 1
 
 \end{frame}
 
-\begin{frame}[fragile]
-    \frametitle{(Simple) Deduction Engine}
-
-	The job of the deduction engine is:
-
-	\begin{itemize}
-		\item To prune the search when incorrect programs are generated.
-	\end{itemize}
-
-% 	\begin{exampleblock}{Example}
-% 		\begin{lstlisting}[style=imp]
-% @TODO@
-% 		\end{lstlisting}
-% 	\end{exampleblock}
-
-\end{frame}
+% \begin{frame}[fragile]
+%     \frametitle{(Simple) Deduction Engine}
+%
+% 	The job of the deduction engine is:
+%
+% 	\begin{itemize}
+% 		\item To prune the search when incorrect programs are generated.
+% 	\end{itemize}
+%
+% % 	\begin{exampleblock}{Example}
+% % 		\begin{lstlisting}[style=imp]
+% % @TODO@
+% % 		\end{lstlisting}
+% % 	\end{exampleblock}
+%
+% \end{frame}
 
 \begin{frame}
     \frametitle{The simplest synthesiser}
@@ -334,7 +342,7 @@ X ::= X - 1
     \begin{tikzpicture}[node distance=2cm]
 
         \node[box1] (enum) [] {Enumerator};
-        \node[box1] (dedu) [below of = enum] {Deduction Engine};
+        \node[box1] (dedu) [below of = enum] {Program Checker};
 
 		\node[draw,dotted,fit=(enum) (dedu)] (synt) {};
 
@@ -375,37 +383,51 @@ X ::= X - 1
 \section{A modern synthesiser: Synquid}
 
 \begin{frame}
-	\frametitle{\textbf{Synquid}}
+	\frametitle{\textbf{Synquid} \cite{polikarpova_program_2016}}
 	\framesubtitle{by Nadia Polikarpova}
 
-	Let's look at a modern synthesiser:
-	\begin{itemize}
-		\item bidirectional synthesis
-		\item liquid types
-	\end{itemize}
+	Synquid is a modern synthesiser that uses \textit{polymorphic refinement types}
+	in order to prune the search space and make deductions about the program.
 
 \end{frame}
 
-\begin{frame}
-	\frametitle{Bidirectional synthesis}
+% \begin{frame}
+% 	\frametitle{Bidirectional synthesis}
+%
+% \end{frame}
 
-\end{frame}
+\begin{frame}[fragile]
+	\frametitle{Logically Qualified Data Types}
+	\framesubtitle{Liquid Types \cite{rondon_liquid_2008}}
 
-\begin{frame}
-	\frametitle{Liquid Types}
+	Liquid Types is a way for automatically derivating \hl{refinement types}.
 
+	\begin{block}{Refinement types}
+		A combination of a ``regular type'' and a \textbf{refinement}.\\
+		A refinement is a logic restriction on the values of the type.\\
+	\end{block}
+
+	\pause
+
+	\begin{exampleblock}{Example}
+		\vspace*{-.2\baselineskip}
+		\begin{lstlisting}[escapechar=!,style=synquid]
+i :: {!$\nu$!:Int | 1 !$\le$! !$\nu$! !$\wedge$! !$\nu$! !$\le$! 99}
+		\end{lstlisting}
+	\end{exampleblock}
+	$\nu$ is the notation used to represent the value.
 \end{frame}
 
 \begin{frame}[fragile]
 	\frametitle{Example: \texttt{replicate}}
 
-	Taking a number $n$ and some object $\alpha$,\\
-	return a list containing $n$ copies of $\alpha$.\\~\\
+	Taking a number $n$ and some object $x$ of type $\alpha$,\\
+	return a list containing $n$ copies of $x$.\\~\\
 
 	\begin{exampleblock}{Specification}
 		\vspace*{-.2\baselineskip}
-		\begin{lstlisting}[xleftmargin=1em, escapechar=!,style=imp]
-replicate :: n:Nat !$\mapsto$! x:!$\alpha$! !$\mapsto$! {!$\nu$!:List !$\alpha$! | len !$\nu$! = n}
+		\begin{lstlisting}[escapechar=!,style=synquid]
+replicate :: n:Nat !$\mapsto$! x:!$\color{fibeamer@color1}{\alpha}$! !$\mapsto$! {!$\nu$!:List !$\color{fibeamer@color1}{\alpha}$! | len !$\nu$! = n}
 replicate = ??
 		\end{lstlisting}
 	\end{exampleblock}
@@ -415,9 +437,17 @@ replicate = ??
 \begin{frame}[fragile]
 	\frametitle{Example: \texttt{replicate}}
 
+	\begin{exampleblock}{Specification}
+		\vspace*{-.2\baselineskip}
+		\begin{lstlisting}[escapechar=!,style=synquid]
+replicate :: n:Nat !$\mapsto$! x:!$\color{fibeamer@color1}{\alpha}$! !$\mapsto$! {!$\nu$!:List !$\color{fibeamer@color1}{\alpha}$! | len !$\nu$! = n}
+replicate = ??
+		\end{lstlisting}
+	\end{exampleblock}
+
 	\begin{exampleblock}{Auxiliary components}
 		\vspace*{-.2\baselineskip}
-		\begin{lstlisting}[xleftmargin=1em, escapechar=!,style=imp]
+		\begin{lstlisting}[escapechar=!,style=synquid]
 zero :: {!$\nu$!:Int | !$\nu$! = 0}
 inc :: x:Int !$\mapsto$! {!$\nu$!:Int | !$\nu$! = x+1}
 dec :: x:Int !$\mapsto$! {!$\nu$!:Int | !$\nu$! = x-1}
@@ -427,5 +457,10 @@ neq :: x:Int !$\mapsto$! y:Int !$\mapsto$! {!$\nu$!:Bool | !$\nu$! = x!$\neq$!y}
 	\end{exampleblock}
 
 \end{frame}
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \printbibliography
+ \end{frame}
 
 \end{document}
