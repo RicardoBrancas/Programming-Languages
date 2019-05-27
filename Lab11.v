@@ -7,10 +7,6 @@ Inductive expr : Type :=
 | Abs (x:string) (e:expr)
 | App (e1:expr) (e2:expr).
 
-Coercion Var : string >-> expr. 
-Notation "'lamb' x '.' e" := (Abs x e) (at level 90).
-Notation "t1 ' t2" := (App t1 t2) (at level 90).
-
 Fixpoint is_in (a:string) (l:list string) : bool :=
   match l with
     | [] => false
@@ -31,5 +27,17 @@ Fixpoint bv (e:expr) : list string :=
   | App t1 t2 => (bv t1) ++ (bv t2)
   end) [].
 
-Compute bv (App "x").
 
+Fixpoint subst (t:expr) (v:string) (s:expr) : expr :=
+match t with
+| Var x => if eqb x v then s else t
+| Abs x t' => if eqb x v then t else Abs x (subst t' v s)
+| App t1 t2 => App (subst t1 v s) (subst t2 v s)
+end.
+
+Compute subst (Var "x") "x" (Var "y").
+Compute subst (Var "y") "x" (Var "y").
+Compute subst (Abs "x" (App (Var "y") (Var "x"))) "x" (Var "y").
+Compute subst (Abs "y" (App (Var "y") (Var "x"))) "x" (Var "y").
+Compute subst (Abs "y" (Abs "x" (App (Var "w") (App (Var "x") (Var "y"))))) "w" (Var "y").
+Compute subst (Abs "y" (Abs "x" (App (Var "w") (App (Var "x") (Var "y"))))) "w" (Var "x").

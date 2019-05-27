@@ -23,10 +23,8 @@
 \newcommand{\pred}[1]{\animcb{1}{2-}{fibeamer@lightColor1}{#1}}
 \newcommand{\func}[1]{\animcb{1}{2-}{fibeamer@lightColor2}{#1}}
 \newcommand{\quant}[1]{\animcb{1}{2-}{fibeamer@lightColor3}{#1}}
-%% ===   DEFINITIONS   ===
 
-\theoremstyle{definition} % See Lesson Three of the LaTeX Manual for more on this kind of "proclamation."
-\newtheorem*{dfn}{A Reasonable Definition}
+%% ===   DEFINITIONS   ===
 
 \tikzstyle{tex1} = [minimum width=3cm, minimum height=1cm, text centered]
 \tikzstyle{tef1} = [minimum width=2.4cm, minimum height=1cm, text centered]
@@ -103,7 +101,6 @@
                                                                  Separation Logic Specification\\
                                                                  ...};
         \draw[decorate,decoration={brace, raise=7pt, amplitude=5pt}] (spec1.south west) -- (spec1.north west);
-        %TODO add more examples of specifications
       }
 
       \onslide<2->{
@@ -123,7 +120,6 @@
     \pause
     We can use a logic formulation.
 
-    %TODO too empty
 \end{frame}
 
 \section{Logic Background}
@@ -132,7 +128,6 @@
 \begin{frame}
     \frametitle{First-order Logic}
 
-    %TODO define FOL
     \begin{block}{First-order Logic (FOL)}
         A superset of \hl{propositional logic}, adding \animcb{1-1}{2-}{fibeamer@lightColor1}{predicates},
 				\animcb{1-1}{2-}{fibeamer@lightColor2}{functions} and \animcb{1-1}{2-}{fibeamer@lightColor3}{quantifiers}.
@@ -185,16 +180,17 @@
 		Such subsets are called \hl{theories}.
     \end{block}
 
-	\begin{exampleblock}{Theory: Equality with Uninterpreted Functions}
-        $(f(b) = d) \wedge (f(a) + f(b) = d) \wedge (a = d)$
-    \end{exampleblock}
-
-    \pause
-
-    \begin{exampleblock}{Theory: Linear Arithmetic}
+		\begin{exampleblock}{Theory: Linear Arithmetic}
         $3x + 2y < 3$\\
         $x + y + z = 45$
     \end{exampleblock}
+
+		\pause
+
+		\begin{exampleblock}{Theory: Equality with Uninterpreted Functions}
+        $f(b) = d \; \wedge \; f(a) = d \; \wedge \; a = d$
+    \end{exampleblock}
+
 \end{frame}
 
 \begin{frame}
@@ -210,7 +206,11 @@
 				$\{ x \mapsto 0, y \mapsto 1\}$
 		\end{exampleblock}
 
-    %TODO more models?
+		\pause
+
+		\begin{exampleblock}{Example: Model for $\{f(b) = d \; \wedge \; f(a) = d \; \wedge \; a = d\}$}
+				$\{ a \mapsto *_1,\; b \mapsto *_2,\; d \mapsto *_1,\; f \mapsto \lambda x. *_1\}$
+		\end{exampleblock}
 \end{frame}
 
 \begin{frame}
@@ -221,7 +221,10 @@
         \item Arrays
         \item Pointer logic
         \item Quantified Theories
-    \end{itemize}
+				\item ...
+    \end{itemize}~\\
+
+		Different theories can also be combined while retaining decidability.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -259,7 +262,7 @@ X ::= X - 1
     We say that a program is correct, if the corresponding SMT formula is satisfiable.
 \end{frame}
 
-\section{A very simple synthesiser} %TODO weird name xD
+\section{A very simple synthesiser}
 
 \begin{frame}
     \frametitle{Generating Programs}
@@ -384,10 +387,21 @@ X ::= X - 1
 
 \begin{frame}
 	\frametitle{\textbf{Synquid} \cite{polikarpova_program_2016}}
-	\framesubtitle{by Nadia Polikarpova}
 
-	Synquid is a modern synthesiser that uses \textit{polymorphic refinement types}
-	in order to prune the search space and make deductions about the program.
+	\begin{columns}[c] % align columns
+		\begin{column}{.48\textwidth}
+			Synquid is a modern synthesiser that uses \textit{polymorphic refinement types}
+			in order to prune the search space and make deductions about the program.
+		\end{column}%
+		\begin{column}{.48\textwidth}%
+			\begin{figure}
+				\includegraphics[width=0.67\textwidth]{nadia_polikarpova.jpg}\\
+				Nadia Polikarpova
+			\end{figure}
+
+
+		\end{column}%
+	\end{columns}
 
 \end{frame}
 
