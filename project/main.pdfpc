@@ -31,7 +31,6 @@ $
 
 First-order logic introduces predicates, functions and quantifiers.
 As you can see:
-
 ### 7
 
 We say that a formula is satisfiable, if there is at least one assignment such that the statement becomes true.
@@ -65,30 +64,23 @@ Here we have some examples.
 
 ### 11
 
-There are many theories and most importantly there exist techniques for combining them and still retain decidability.
+There are many theories that are useful when working with programs.
+Like bit vectors, arrays, pointer logic - which make it easier to model the common data structures we use.
+
+And most importantly, there exist techniques for combining them and still retain decidability.
 
 ### 12
-
 So, now that we know about SMT we can use it to check a simple program.
 Consider this example in the Imp language we have been studying:
-We want to check that, assuming X's initial value is 3,
-and that we assign the value of X - 2 to variable Y
-and the value of X - 1 to X,
-then, in the end, X should have value 2 and Y should have value 1.
-
+We want to check that, assuming X's initial value is 3, and that we assign the value of X - 2 to variable Y and the value of X - 1 to X, then, in the end, X should have value 2 and Y should have value 1.
 $
-
 We can formalise the correctness of this hoare triple by translating to this SMT formula.
 Note the usage of different SMT variables for each time the program variables are assigned.
 This is so that each variable is assigned at most once in a program.
-
 $
-
 This formula is satisfiable iff the triple is correct.
 Meaning that there is some mapping from variables to values such that all clauses are satisfied.
-
 In this case there is only one solution which is: X0=3, X1=2 and Y0=1.
-
 ### 14
 
 So now we know how to check if a program respects a specification.
