@@ -5,6 +5,7 @@
 \usepackage{listings}
 \usepackage{tikz-qtree}
 \usepackage[backend=bibtex]{biblatex}
+\usepackage{pdfpcnotes}
 
 \usetikzlibrary{arrows,positioning,decorations.pathreplacing,fit}
 
@@ -84,6 +85,7 @@
 
 \begin{frame}
     \frametitle{Program Synthesis}
+		\pnote{Suppose you have a specification for some piece of software, normally you would have to write it, test it and so on. But what if you don't want to do this (or imagine you don't even know how to program).}
 
     \centering
     \begin{tikzpicture}[node distance=2cm]
@@ -126,7 +128,7 @@
 
 
 \begin{frame}
-    \frametitle{First-order Logic}
+    \frametitle{First-order Logic I}
 
     \begin{block}{First-order Logic (FOL)}
         A superset of \hl{propositional logic}, adding \animcb{1-1}{2-}{fibeamer@lightColor1}{predicates},
@@ -140,26 +142,37 @@
 	    \end{exampleblock}
 		}
 
+		\mathchardef\mhyphen="2D
 
 		\only<2->{
 			\begin{exampleblock}{First-order Logic}
-				$\quant{\forall} x.\pred{P}(x)$\\
-				$\quant{\exists} y \quant{\forall} x.\pred{Q}(y, x) \wedge \pred{P}(\func{f}(y))$\\
+				$\quant{\forall} x. \pred{Panda}(x) \implies \pred{Mammal}(x)$\\
+				$\neg \quant{\exists} x. \pred{Panda}(x) \wedge \neg\pred{Panda}(\func{father\mhyphen of}(x))$\\
 	    	\end{exampleblock}
 		}
+\end{frame}
 
-		\onslide<3->{
-			\begin{alertblock}{FOL Decidability}
-		    	First-order logic is undecidable.
-			\end{alertblock}
-		}
+\begin{frame}
+    \frametitle{First-order Logic II}
+
+		\begin{block}{Validity \& Satisfiability}
+	    	A formula is \hl{satisfiable} if it is True for some assignment to the variables/functions.\\
+				It is \hl{valid} if it is True for all possible assignments.
+		\end{block}
+
+		\pause
+
+		\begin{alertblock}{FOL Decidability}
+				First-order logic is undecidable.
+		\end{alertblock}
+
 \end{frame}
 
 \begin{frame}
     \frametitle{Decidability}
 
     \begin{block}{Decidable Problem}
-        A problem is \hl{decidable} if if there is a way of deriving the correct answer.
+        A problem is \hl{decidable} iff there is a way of deriving the correct answer.
     \end{block}
 
 		\begin{block}{Undecidable Problem}
@@ -168,7 +181,8 @@
     \end{block}~\\
 
 		\pause
-		Then how can we check a first-order formula?
+		As such, it is impossible to determine if any given formula is valid.\\
+		So how can we solve this?
 
 \end{frame}
 
@@ -180,7 +194,7 @@
 		Such subsets are called \hl{theories}.
     \end{block}
 
-		\begin{exampleblock}{Theory: Linear Arithmetic}
+		\begin{exampleblock}{Theory: Presburger arithmetic - $\{I\!N, +\}$}
         $3x + 2y < 3$\\
         $x + y + z = 45$
     \end{exampleblock}
@@ -414,7 +428,7 @@ X ::= X - 1
 	\frametitle{Logically Qualified Data Types}
 	\framesubtitle{Liquid Types \cite{rondon_liquid_2008}}
 
-	Liquid Types is a way for automatically derivating \hl{refinement types}.
+	Liquid Types is a way for automatically deriving \hl{refinement types}.
 
 	\begin{block}{Refinement types}
 		A combination of a ``regular type'' and a \textbf{refinement}.\\

@@ -1,71 +1,41 @@
 #
-
 So today I'm going to talk about program synthesis.
-
 # 1
-
 # 2
-
 Suppose you have a specification for some piece of software, normally you would have to write it, test it and so on. But what if you don't want to do this (or imagine you don't even know how to program).
-
 $
-
 That is the problem program synthesis tries to solve.
 These specifications can be as simple as just a set of input/output examples or as formal a logic specification.
-
 # 3
-
 But before we try to tackle this problem, how can we check if a some program respects a given specification?
-
 $
-
 We can reduce this to a logic formulation and use an off the shelf solver to find out.
-
 # 4
-
 Let's see how we can do this.
-
 # 5
-
 As most of you have probably learned from previous courses, first-order logic is a superset of the propositional logic.
-
 Here we have an example of propositional:
 - P and Q
 - Q implies P or R
-
 $
-
 First-order logic introduces predicates, functions and quantifiers.
 As you can see:
-- For all x, P(x)
-- Exists y such that for all x, Q(y, x) and P(f(y))
-
-$
-
-There is problem however: first order logic is undecidable
-
 # 6
-
-We say that a problem in decidable if there is a way of always deriving the correct answer.
-This problem of undecidablity means we cannot create an algorithm that says wether a given first order formula is satisfiable.
-
+We say that a formula is satisfiable, if there is at least one assignment such that the statement becomes true.
+We also say that a formula is valid if it is true for all possible assignments.
 $
-
-So how can we do it?
-
+There is problem however: first order logic is undecidable
 # 7
-
+A problem being decidable means that there is a way of always deriving the correct answer.
+As such, if it undecidable, it means that there is no algorithm that is always correct.
+$
+This problem of undecidablity means we cannot create an algorithm that says wether a given first order formula is satisfiable.
+So how can we do it?
+# 8
 The solution is to only use the parts of first-order logic that are decidable, which are called theories.
 This technique is called satisfiability modulo theories.
-
-Here we have an example of one such theory: TODO
-
-$
-
-And here another one
-
-# 8
-
+Here we have some examples:
+# 9
 We call the possible solutions to formulas models.
 
 For example a model for the formula 3x+2y<3 is assigning 0 to x and 1 to y. Resulting in 2 < 3, which is true.
